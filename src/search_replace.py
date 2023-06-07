@@ -3,6 +3,43 @@ import win32com.client  # pip install pywin32
 import csv
 from typing import List, Tuple
 import yaml
+from tqdm import tqdm
+import logging
+
+
+def setup_logger(
+    logger_name: str = "log",
+    log_file: str = "log.log",
+    level: str = "INFO",
+    file_handler_on: bool = False,
+    simple_format: bool = False,
+) -> logging.Logger:
+    # Create a logger object
+    logger = logging.getLogger(logger_name)
+
+    # Set the logging level
+    logger.setLevel(logging.getLevelName(level.upper()))
+
+    # Create a formatter that formats log messages
+    if simple_format is True:
+        formatter = logging.Formatter("%(message)s")
+    else:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+
+    # Create a console handler that logs messages to the console
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    # Create a file handler that logs messages to a file if file_handler_on is True
+    if file_handler_on:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+    return logger
 
 
 def read_config() -> dict:
@@ -22,7 +59,7 @@ def read_config() -> dict:
 
 
 def read_csv_file(
-    csv_directory_name: str = "search_replace_pairs",
+    csv_directory_name: str,
 ) -> List[Tuple[str, str]]:
     """
     Reads a CSV file containing search and replace pairs.
@@ -48,9 +85,9 @@ def read_csv_file(
 
 def replace_words_in_word_document(
     search_replace_pairs: List[Tuple[str, str]],
-    replace_all_or_first_word: int = 2,
-    input_dir_name: str = "input",
-    output_dir_name: str = "output",
+    replace_all_or_first_word: int,
+    input_dir_name: str,
+    output_dir_name: str,
 ) -> None:
     """
     Replaces all occurrences of multiple strings in all Word documents in a directory.
@@ -75,11 +112,11 @@ def replace_words_in_word_document(
     word_app.Visible = False
     word_app.DisplayAlerts = False
 
-    for doc_file in Path(input_dir).rglob("*.doc*"):
+    for doc_file in tqdm(list(Path(input_dir).rglob("*.doc*"))):
         # Open each document and replace strings
         word_app.Documents.Open(str(doc_file))
 
-        for search_str, replace_str in search_replace_pairs:
+        for search_str, replace_str in tqdm(search_replace_pairs):
             # API documentation: https://learn.microsoft.com/en-us/office/vba/api/word.find.execute
             word_app.Selection.Find.Execute(
                 FindText=search_str,
@@ -124,13 +161,33 @@ def replace_words_in_word_document(
 
 
 if __name__ == "__main__":
+    # Setup logging
+    logger = setup_logger(simple_format=True)
+    logger.info("Let's rock & roll...")
+    logger = setup_logger(simple_format=False)
+
+    # Read config file
+    logger.info("Searching config.yml for configuration data...")
     config_data = read_config()
+
+    # Read CSV file containing search and replace pairs
+    logger.info("Reading CSV file containing search and replace pairs...")
     search_replace_pairs = read_csv_file(
-        csv_directory_name=config_data.get("CSV_DIRECTORY_NAME", "search_replace_pairs")
+        csv_directory_name=config_data.get(
+            "CSV_DIRECTORY_NAME", "2_insert_search-replace_pairs_here"
+        )
     )
+
+    # Replace words in Word documents
+    logger.info("Replacing words in Word documents...")
     replace_words_in_word_document(
         search_replace_pairs,
         replace_all_or_first_word=config_data.get("REPLACE_ALL_OR_FIRST_WORD", 2),
-        input_dir_name=config_data.get("INPUT_DIRECTORY_NAME", "input"),
-        output_dir_name=config_data.get("OUTPUT_DIRECTORY_NAME", "output"),
+        input_dir_name=config_data.get(
+            "INPUT_DIRECTORY_NAME", "1_insert_word_documents_here"
+        ),
+        output_dir_name=config_data.get("OUTPUT_DIRECTORY_NAME", "3_output"),
     )
+
+    # Done! message
+    logger.info("Done!")
