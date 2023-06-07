@@ -30,5 +30,4 @@
 @REM REM Removing the tempoaray conda environment...
 @REM conda remove -n search_replace_tool_temp_environment --all -y
 
-
-conda create -n search_replace_tool_temp_environment python=3.10 -y & conda activate search_replace_tool_temp_environment & conda install pip -y & pip install -r requirements.txt & if not exist dist mkdir dist & pyinstaller --onefile src/search_replace.py -y & copy README.md dist\ & xcopy data dist\ /s /e /y & conda deactivate & conda remove -n search_replace_tool_temp_environment --all -y
+C:/Users/NButterly/AppData/Local/miniconda3/Scripts/activate & conda create -n search_replace_tool_temp_environment python=3.10 -y & conda activate search_replace_tool_temp_environment & conda install pip -y & pip install -r requirements.txt & if not exist dist mkdir dist & pyinstaller --onefile src/search_replace.py -y & copy README.md dist\ & xcopy data dist\ /s /e /y & conda deactivate & conda remove -n search_replace_tool_temp_environment --all -y
