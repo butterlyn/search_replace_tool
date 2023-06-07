@@ -1,0 +1,2 @@
+import glossary_formatter.glossary_formatter as glossary_formatter
+from glossary_formatter.glossary_formatter import format_glossary

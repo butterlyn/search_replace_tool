@@ -1,0 +1,5 @@
+typing
+pytest
+pywin32
+click
+python-docx
