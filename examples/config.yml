@@ -1,4 +1,0 @@
-REPLACE_ALL_OR_FIRST_WORD: 2 # 2=replace all occurrences, 1=replace first occurrence, 0=replace no occurrences. Default is 2.
-INPUT_DIRECTORY_NAME: "input"
-OUTPUT_DIRECTORY_NAME: "output"
-CSV_DIRECTORY_NAME: "search_replace_pairs"

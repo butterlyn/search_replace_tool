@@ -1,0 +1,10 @@
+REPLACE_ALL_OR_FIRST_WORD: 2 # 2=replace all occurrences, 1=replace first occurrence, 0=replace no occurrences.
+INPUT_DIRECTORY_NAME: "1_insert_word_documents_here"
+CSV_DIRECTORY_NAME: "2_insert_search-replace_pairs_here"
+OUTPUT_DIRECTORY_NAME: "3_output"
+
+# This config.yml file is optional, the application works without it with the following defaults:
+  # REPLACE_ALL_OR_FIRST_WORD: 2=replace all occurrences
+  # INPUT_DIRECTORY_NAME: "1_insert_word_documents_here"
+  # CSV_DIRECTORY_NAME: "2_insert_search-replace_pairs_here"
+  # OUTPUT_DIRECTORY_NAME: "3_output"

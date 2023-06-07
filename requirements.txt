@@ -1,0 +1,4 @@
+pyinstaller
+tqdm
+pywin32
+pyyaml
