@@ -30,17 +30,12 @@ For any issues, contact nicholas.butterly@aemo.com.au
 
 ### Installation requirements
 
-- Python 3.X
-- Pip
-- pyinstaller
+- Conda
 
 ### Installation instructions
 
-```
-python setup.py sdist
-```
 
-Alternatively, assuming you have python installed, run `setup.bat` in either powershell or command prompt. Terminal must be python enabled, check by running `python --version`.
+Run `setup.bat` in either powershell or command prompt. Terminal must have conda installed, check by running `conda --version`.
 
 After installation, the `dist` folder will contain the tool.
 
