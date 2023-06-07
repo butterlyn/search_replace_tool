@@ -34,8 +34,7 @@ For any issues, contact nicholas.butterly@aemo.com.au
 
 ### Installation instructions
 
-
-Run `setup.bat` in either powershell or command prompt. Terminal must have conda installed, check by running `conda --version`.
+Run `setup.bat` in either powershell or command prompt with conda activated. Terminal must have conda installed, check by running `conda --version`.
 
 After installation, the `dist` folder will contain the tool.
 
