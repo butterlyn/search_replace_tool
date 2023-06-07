@@ -107,12 +107,14 @@ def replace_words_in_word_document(
     # create output directory if it doesn't exist
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Open Word
-    word_app = win32com.client.DispatchEx("Word.Application")
-    word_app.Visible = False
-    word_app.DisplayAlerts = False
+
 
     for doc_file in tqdm(list(Path(input_dir).rglob("*.doc*"))):
+        # Open Word
+        word_app = win32com.client.DispatchEx("Word.Application")
+        word_app.Visible = False
+        word_app.DisplayAlerts = False
+        
         # Open each document and replace strings
         word_app.Documents.Open(str(doc_file))
 
@@ -157,7 +159,7 @@ def replace_words_in_word_document(
         output_path = output_dir / f"{doc_file.stem}_replaced{doc_file.suffix}"
         word_app.ActiveDocument.SaveAs(str(output_path))
         word_app.ActiveDocument.Close(SaveChanges=False)
-    word_app.Application.Quit()
+        word_app.Application.Quit()
 
 
 if __name__ == "__main__":
