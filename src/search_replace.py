@@ -166,7 +166,7 @@ if __name__ == "__main__":
     # Setup logging
     logger = setup_logger(simple_format=True)
     logger.info("Let's rock & roll...")
-    logger = setup_logger(simple_format=False)
+    logger = setup_logger(level="DEBUG",file_handler_on=True,simple_format=False)
 
     # Read config file
     logger.info("Searching config.yml for configuration data...")
