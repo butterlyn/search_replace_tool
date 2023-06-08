@@ -64,6 +64,7 @@ After installation, the `dist` folder will contain the tool.
 - [ ] Add GUI
 - [ ] Ability to specify any filepath(s) for a docx or directory containing docx files, and specify the CSV filepath(s)
 - [ ] Create COM plugin for Word
-- [ ] Improve installation verbosity
-  - [ ] Add a progress bar
-  - [ ] Display more information in installation terminal during installation (via a INFO logger)
+- [x] Improve installation verbosity
+  - [x] Add a progress bar
+  - [x] Display more information in installation terminal during installation (via a INFO logger)
+- [ ] Add a summary report of changes made (in the log or in a separate file)
