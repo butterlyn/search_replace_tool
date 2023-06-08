@@ -153,7 +153,6 @@ def replace_words_in_word_document(
             try:
                 number_of_shapes_in_document = word_app.ActiveDocument.Shapes.Count
 
-                number_of_shapes_in_document = 0
                 for i in range(number_of_shapes_in_document):
                     if word_app.ActiveDocument.Shapes(i + 1).TextFrame.HasText:
                         words = word_app.ActiveDocument.Shapes(
@@ -189,18 +188,14 @@ def replace_words_in_word_document(
 
         # Save the new file
         logger.debug(f"Saving the new file for {doc_file.name}")
-        try:
-            output_path = output_dir / f"{doc_file.stem}_replaced{doc_file.suffix}"
-            word_app.ActiveDocument.SaveAs(str(output_path), timeout=10)
-        except TimeoutError:
-            logger.error(f"Timeout error while saving the new file for {doc_file.name}")
+        output_path = output_dir / f"{doc_file.stem}_replaced{doc_file.suffix}"
+        word_app.ActiveDocument.SaveAs(str(output_path))
+        logger.debug(f"Saved the new file for {doc_file.name}.")
 
         # Close the document
         logger.debug(f"Closing the document {doc_file.name}.")
-        try:
-            word_app.ActiveDocument.Close(SaveChanges=False, timeout=10)
-        except TimeoutError:
-            logger.error(f"Timeout error while closing document {doc_file.name}")
+        word_app.ActiveDocument.Close(SaveChanges=False)
+        logger.debug(f"Closed the document {doc_file.name}.")
 
     # Quit Word
     logger.debug("Quitting Word.")
