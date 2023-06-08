@@ -144,7 +144,7 @@ def replace_words_in_word_document(
 
                 # -- Replace str in headers
                 logger.debug(
-                    f"For replacement pair (For {len(search_replace_pairs)}) in '{doc_file.name}, replacing '{search_str}' with '{replace_str}' )."
+                    f"For replacement pair ({len(search_replace_pairs)}) in '{doc_file.name}, replacing '{search_str}' with '{replace_str}' )."
                 )
 
             # -- Replace str in shapes
@@ -168,7 +168,7 @@ def replace_words_in_word_document(
                                 == search_str
                             ):
                                 logger.debug(
-                                    f"Replacing '{search_str}' with '{replace_str}' in shape {i+1} of {number_of_shapes_in_document} shapes."
+                                    f"For shape ({i+1}/{number_of_shapes_in_document}), replacing '{search_str}' with '{replace_str}'."
                                 )
                                 word_app.ActiveDocument.Shapes(
                                     i + 1
@@ -185,12 +185,18 @@ def replace_words_in_word_document(
 
         # Save the new file
         logger.debug(f"Saving the new file for {doc_file.name}")
-        output_path = output_dir / f"{doc_file.stem}_replaced{doc_file.suffix}"
-        word_app.ActiveDocument.SaveAs(str(output_path))
+        try:
+            output_path = output_dir / f"{doc_file.stem}_replaced{doc_file.suffix}"
+            word_app.ActiveDocument.SaveAs(str(output_path), timeout=10)
+        except TimeoutError:
+            logger.error(f"Timeout error while saving the new file for {doc_file.name}")
 
         # Close the document
         logger.debug(f"Closing the document {doc_file.name}.")
-        word_app.ActiveDocument.Close(SaveChanges=False)
+        try:
+            word_app.ActiveDocument.Close(SaveChanges=False, timeout=10)
+        except TimeoutError:
+            logger.error(f"Timeout error while closing document {doc_file.name}")
 
     # Quit Word
     logger.debug("Quitting Word.")
