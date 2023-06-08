@@ -43,8 +43,8 @@ def setup_logger(
 
 
 # Setup logging
-logger = setup_logger(simple_format=True)
-logger.info("Let's rock & roll...", file_handler_on=True)
+logger = setup_logger(simple_format=True, file_handler_on=True)
+logger.info("Let's rock & roll...")
 logger = setup_logger(level="DEBUG", file_handler_on=True, simple_format=False)
 
 
