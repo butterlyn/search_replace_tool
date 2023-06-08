@@ -25,7 +25,7 @@ def setup_logger(
         formatter = logging.Formatter("%(message)s")
     else:
         formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            "%(asctime)s -  %(levelname)s - %(funcName)s - (Line: %(lineno)d) - %(message)s"
         )
 
     # Create a console handler that logs messages to the console
@@ -40,6 +40,12 @@ def setup_logger(
         logger.addHandler(file_handler)
 
     return logger
+
+
+# Setup logging
+logger = setup_logger(simple_format=True)
+logger.info("Let's rock & roll.")
+logger = setup_logger(level="DEBUG", file_handler_on=True, simple_format=False)
 
 
 def read_config() -> dict:
@@ -94,7 +100,7 @@ def replace_words_in_word_document(
 
     Args:
         search_replace_pairs (List[Tuple[str, str]]): A list of tuples containing the search and replace phrases.
-        replace_all_or_first_word (int): 2=replace all occurances, 1=replace one occurence, 0=replace no occurences. Default is 2.
+        replace_all_or_first_word (int): 2=replace all occurrances, 1=replace one occurrence, 0=replace no occurrences. Default is 2.
     """
 
     # current path
@@ -107,73 +113,97 @@ def replace_words_in_word_document(
     # create output directory if it doesn't exist
     output_dir.mkdir(parents=True, exist_ok=True)
 
-
+    word_app = win32com.client.DispatchEx("Word.Application")
+    word_app.Visible = False
+    word_app.DisplayAlerts = False
 
     for doc_file in tqdm(list(Path(input_dir).rglob("*.doc*"))):
         # Open Word
-        word_app = win32com.client.DispatchEx("Word.Application")
-        word_app.Visible = False
-        word_app.DisplayAlerts = False
-        
-        # Open each document and replace strings
-        word_app.Documents.Open(str(doc_file))
+        logger.debug("Opening Word.")
 
-        for search_str, replace_str in tqdm(search_replace_pairs):
-            # API documentation: https://learn.microsoft.com/en-us/office/vba/api/word.find.execute
-            word_app.Selection.Find.Execute(
-                FindText=search_str,
-                ReplaceWith=replace_str,
-                Replace=replace_all_or_first_word,
-                Forward=True,
-                MatchCase=True,
-                MatchWholeWord=False,
-                MatchWildcards=True,
-                MatchSoundsLike=False,
-                MatchAllWordForms=False,
-                Wrap=0,
-                Format=True,
-            )
+        try:
+            # Open each document and replace strings
+            word_app.Documents.Open(str(doc_file))
+
+            for search_str, replace_str in search_replace_pairs:
+                # API documentation: https://learn.microsoft.com/en-us/office/vba/api/word.find.execute
+
+                word_app.Selection.Find.Execute(
+                    FindText=search_str,
+                    ReplaceWith=replace_str,
+                    Replace=replace_all_or_first_word,
+                    Forward=True,
+                    MatchCase=True,
+                    MatchWholeWord=False,
+                    MatchWildcards=True,
+                    MatchSoundsLike=False,
+                    MatchAllWordForms=False,
+                    Wrap=0,
+                    Format=True,
+                )
+
+                # -- Replace str in headers
+                logger.debug(
+                    f"For replacement pair (For {len(search_replace_pairs)}) in '{doc_file.name}, replacing '{search_str}' with '{replace_str}' )."
+                )
 
             # -- Replace str in shapes
             # VBA SO reference: https://stackoverflow.com/a/26266598
             # Loop through all the shapes
-            for i in range(word_app.ActiveDocument.Shapes.Count):
-                if word_app.ActiveDocument.Shapes(i + 1).TextFrame.HasText:
-                    words = word_app.ActiveDocument.Shapes(
-                        i + 1
-                    ).TextFrame.TextRange.Words
-                    # Loop through each word. This method preserves formatting.
-                    for j in range(words.Count):
-                        # If a word exists, replace the text of it, but keep the formatting.
-                        if (
-                            word_app.ActiveDocument.Shapes(i + 1)
-                            .TextFrame.TextRange.Words.Item(j + 1)
-                            .Text
-                            == search_str
-                        ):
-                            word_app.ActiveDocument.Shapes(
-                                i + 1
-                            ).TextFrame.TextRange.Words.Item(j + 1).Text = replace_str
+            number_of_shapes_in_document = word_app.ActiveDocument.Shapes.Count
+
+            try:
+                for i in range(number_of_shapes_in_document):
+                    if word_app.ActiveDocument.Shapes(i + 1).TextFrame.HasText:
+                        words = word_app.ActiveDocument.Shapes(
+                            i + 1
+                        ).TextFrame.TextRange.Words
+                        # Loop through each word. This method preserves formatting.
+                        for j in range(words.Count):
+                            # If a word exists, replace the text of it, but keep the formatting.
+                            if (
+                                word_app.ActiveDocument.Shapes(i + 1)
+                                .TextFrame.TextRange.Words.Item(j + 1)
+                                .Text
+                                == search_str
+                            ):
+                                logger.debug(
+                                    f"Replacing '{search_str}' with '{replace_str}' in shape {i+1} of {number_of_shapes_in_document} shapes."
+                                )
+                                word_app.ActiveDocument.Shapes(
+                                    i + 1
+                                ).TextFrame.TextRange.Words.Item(
+                                    j + 1
+                                ).Text = replace_str
+            except Exception as e:
+                logger.warning(
+                    f"Problem processing text in shapes for {doc_file.name}: {e}"
+                )
+
+        except Exception as e:
+            logger.warning(f"Problem processing document {doc_file.name}: {e}")
 
         # Save the new file
+        logger.debug(f"Saving the new file for {doc_file.name}")
         output_path = output_dir / f"{doc_file.stem}_replaced{doc_file.suffix}"
         word_app.ActiveDocument.SaveAs(str(output_path))
+
+        # Close the document
+        logger.debug(f"Closing the document {doc_file.name}.")
         word_app.ActiveDocument.Close(SaveChanges=False)
-        word_app.Application.Quit()
+
+    # Quit Word
+    logger.debug("Quitting Word.")
+    word_app.Application.Quit()
 
 
 if __name__ == "__main__":
-    # Setup logging
-    logger = setup_logger(simple_format=True)
-    logger.info("Let's rock & roll...")
-    logger = setup_logger(level="DEBUG",file_handler_on=True,simple_format=False)
-
     # Read config file
-    logger.info("Searching config.yml for configuration data...")
+    logger.info("Searching config.yml for configuration data.")
     config_data = read_config()
 
     # Read CSV file containing search and replace pairs
-    logger.info("Reading CSV file containing search and replace pairs...")
+    logger.info("Reading CSV file containing search and replace pairs.")
     search_replace_pairs = read_csv_file(
         csv_directory_name=config_data.get(
             "CSV_DIRECTORY_NAME", "2_insert_search-replace_pairs_here"
@@ -181,7 +211,7 @@ if __name__ == "__main__":
     )
 
     # Replace words in Word documents
-    logger.info("Replacing words in Word documents...")
+    logger.info("Replacing words in Word documents.")
     replace_words_in_word_document(
         search_replace_pairs,
         replace_all_or_first_word=config_data.get("REPLACE_ALL_OR_FIRST_WORD", 2),
