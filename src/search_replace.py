@@ -150,9 +150,10 @@ def replace_words_in_word_document(
             # -- Replace str in shapes
             # VBA SO reference: https://stackoverflow.com/a/26266598
             # Loop through all the shapes
-            number_of_shapes_in_document = word_app.ActiveDocument.Shapes.Count
-
             try:
+                number_of_shapes_in_document = word_app.ActiveDocument.Shapes.Count
+
+                number_of_shapes_in_document = 0
                 for i in range(number_of_shapes_in_document):
                     if word_app.ActiveDocument.Shapes(i + 1).TextFrame.HasText:
                         words = word_app.ActiveDocument.Shapes(
@@ -175,9 +176,12 @@ def replace_words_in_word_document(
                                 ).TextFrame.TextRange.Words.Item(
                                     j + 1
                                 ).Text = replace_str
+                                logger.debug("Replaced.")
+            except AttributeError:
+                logger.debug(f"No shapes in document: {doc_file.name}.")
             except Exception as e:
                 logger.warning(
-                    f"Problem processing text in shapes for {doc_file.name}: {e}"
+                    f"Problem processing text in shapes for {doc_file.name}. Occurred at shape ({i+1}/{number_of_shapes_in_document}) when replacing '{search_str}' with '{replace_str}': {e}"
                 )
 
         except Exception as e:
