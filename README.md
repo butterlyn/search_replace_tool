@@ -16,6 +16,8 @@ For any issues, contact nicholas.butterly@aemo.com.au
 
 - Does not replace words found in headers or footers (but does work for words in text boxes or shapes)
 - Can take a long time to run, especially for large documents or for many search-replace pairs. As a rule of thumb, the WEM Rules takes approximately 1 minute per search-replace pair.
+- Sometimes detects text to replace in shapes, but fails to replace them, giving an error message. May need to list words found in shapes and text boxes instead of replacing them.
+- If user closes the terminal during runtime, there could be an invisible instance of Microsoft Word in the task manager that will need to be closed. Otherwise, one of the word documents will be impossible to delete because it is "in use".
 
 ## Requirements
 
@@ -48,6 +50,9 @@ After installation, the `dist` folder will contain the tool.
 - [ ] Improve performance
   - [ ] Add support for multithreading
   - [ ] Add support for multiprocessing
+- [ ] Fix issue with not replacing words found in shapes or text boxes
+- [ ] Hide the terminal, or otherwise warn or prevent the user from stopping the process prematurely.
+- [ ] Make the setup.bat work for all users. Currently, it only works for the Author's Miniconda installation pathfile.
 
 ##### Add support for more file types
 
