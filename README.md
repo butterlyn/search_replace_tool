@@ -30,15 +30,19 @@ For any issues, contact nicholas.butterly@aemo.com.au
 
 ## Installation
 
-### Installation requirements
+Nil.
+
+## Updating Source Code
+
+### Requirements
 
 - Conda
 
-### Installation instructions
+### Instructions
 
-Run `setup.bat` in either powershell or command prompt with conda activated. Terminal must have conda installed, check by running `conda --version`.
-
-After installation, the `dist` folder will contain the tool.
+1. Update source code found in `src`
+2. Run `setup.bat` in either powershell or command prompt, note that the filepath to conda activate will need to be adjusted for this to work.. Terminal must have conda installed, check by running `conda --version`.
+3. After installation, the `dist` folder will contain the tool.
 
 ## Future Improvements
 
