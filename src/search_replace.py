@@ -1,3 +1,6 @@
+# %%
+# IMPORTS
+
 from pathlib import Path  # core python module
 import win32com.client  # pip install pywin32
 import csv
@@ -6,8 +9,14 @@ import yaml
 from tqdm import tqdm
 import logging
 
+# import kivy
 
-def setup_logger(
+
+# %%
+# LOGGER
+
+
+def _setup_logger(
     logger_name: str = "log",
     log_file: str = "log.log",
     level: str = "INFO",
@@ -42,13 +51,15 @@ def setup_logger(
     return logger
 
 
-# Setup logging
-logger = setup_logger(simple_format=True, file_handler_on=True)
+logger = _setup_logger(simple_format=True, file_handler_on=True)
 logger.info("Let's rock & roll...")
-logger = setup_logger(level="DEBUG", file_handler_on=True, simple_format=False)
+logger = _setup_logger(level="DEBUG", file_handler_on=True, simple_format=False)
+
+# %%
+#
 
 
-def read_config() -> dict:
+def _read_config() -> dict:
     """
     Reads configuration data from a YAML file.
 
@@ -64,7 +75,7 @@ def read_config() -> dict:
     return config_data
 
 
-def read_csv_file(
+def _read_csv_file(
     csv_directory_name: str,
 ) -> List[Tuple[str, str]]:
     """
@@ -89,7 +100,11 @@ def read_csv_file(
     return search_replace_pairs
 
 
-def replace_words_in_word_document(
+# %%
+# COMPOSABLE FUNCTIONS
+
+
+def _replace_words_in_word_document(
     search_replace_pairs: List[Tuple[str, str]],
     replace_all_or_first_word: int,
     input_dir_name: str,
@@ -202,14 +217,18 @@ def replace_words_in_word_document(
     word_app.Application.Quit()
 
 
-if __name__ == "__main__":
+# %%
+# MODULE LEVEL FUNCTION
+
+
+def search_replace() -> None:
     # Read config file
     logger.info("Searching config.yml for configuration data.")
-    config_data = read_config()
+    config_data = _read_config()
 
     # Read CSV file containing search and replace pairs
     logger.info("Reading CSV file containing search and replace pairs.")
-    search_replace_pairs = read_csv_file(
+    search_replace_pairs = _read_csv_file(
         csv_directory_name=config_data.get(
             "CSV_DIRECTORY_NAME", "2_insert_search-replace_pairs_here"
         )
@@ -217,7 +236,7 @@ if __name__ == "__main__":
 
     # Replace words in Word documents
     logger.info("Replacing words in Word documents.")
-    replace_words_in_word_document(
+    _replace_words_in_word_document(
         search_replace_pairs,
         replace_all_or_first_word=config_data.get("REPLACE_ALL_OR_FIRST_WORD", 2),
         input_dir_name=config_data.get(
@@ -228,3 +247,9 @@ if __name__ == "__main__":
 
     # Done! message
     logger.info("Done!")
+
+
+# %%
+# __name__ == "main":
+if __name__ == "__main__":
+    search_replace()
